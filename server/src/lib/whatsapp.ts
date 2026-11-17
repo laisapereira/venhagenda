@@ -4,6 +4,8 @@ const BASE          = process.env.UAZAPI_URL
 const TOKEN         = process.env.UAZAPI_TOKEN
 const INSTANCE      = process.env.UAZAPI_INSTANCE   // número central (plano basic)
 const SITE_BASE_URL = process.env.SITE_BASE_URL     // ex: https://venhagenda.com.br
+// Tenants de demonstração (ex: estúdio público do README): nunca enviam WhatsApp de verdade
+const DEMO_TENANT_IDS = new Set((process.env.DEMO_TENANT_IDS ?? '').split(',').map(Number).filter(Boolean))
 
 type ApptEvent   = 'new' | 'reschedule' | 'cancel' | 'client_cancel'
 export type ClientEvent = 'confirmed' | 'rescheduled' | 'reminder' | 'client_cancelled'
@@ -76,6 +78,10 @@ async function recordMessage(
 }
 
 export async function sendText(toPhone: string, text: string, meta?: SendMeta): Promise<void> {
+  if (meta && DEMO_TENANT_IDS.has(meta.tenantId)) {
+    console.info(`[whatsapp] tenant demo ${meta.tenantId} — envio ignorado`)
+    return
+  }
   const instance = meta?.instance ?? INSTANCE
   if (!BASE || !TOKEN || !instance) {
     console.warn('[whatsapp] UAZAPI_* não configuradas — notificação ignorada')
