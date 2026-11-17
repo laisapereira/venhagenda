@@ -1,5 +1,5 @@
 {
-  "name": "Studio Michele — Lembrete 2 dias antes",
+  "name": "Venhagenda — Lembrete 2 dias antes",
   "nodes": [
     {
       "parameters": {
@@ -166,8 +166,8 @@
   "active": false,
   "settings": { "executionOrder": "v1" },
   "versionId": "1",
-  "id": "lembrete-studio-michele",
+  "id": "lembrete-venhagenda",
   "meta": {
-    "instanceId": "studio-michele"
+    "instanceId": "venhagenda"
   }
 }

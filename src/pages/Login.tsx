@@ -202,7 +202,7 @@ export default function Login() {
             style={fld}
             type="email"
             autoComplete="email"
-            placeholder="michele@studio.com"
+            placeholder="voce@seuestudio.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required

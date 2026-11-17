@@ -83,7 +83,7 @@ export default function Setup() {
 
         <form onSubmit={handleSubmit}>
           <label style={lbl}>Nome do estúdio</label>
-          <input style={fld} type="text" placeholder="Ex: Studio da Michele" value={studioName} onChange={e => handleStudioName(e.target.value)} required />
+          <input style={fld} type="text" placeholder="Ex: Studio Bella" value={studioName} onChange={e => handleStudioName(e.target.value)} required />
 
           <div style={{ marginTop: 14 }}>
             <label style={lbl}>Link de agendamento</label>
@@ -94,7 +94,7 @@ export default function Setup() {
               <input
                 style={{ ...fld, paddingLeft: 58, fontFamily: 'monospace' }}
                 type="text"
-                placeholder="michele"
+                placeholder="studio-bella"
                 value={slug}
                 onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
                 required

@@ -1,5 +1,5 @@
 {
-  "name": "Studio Michele — Resumo Semanal (Admin)",
+  "name": "Venhagenda — Resumo Semanal (Admin)",
   "nodes": [
     {
       "parameters": {
@@ -44,7 +44,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Monta resumo semanal agrupado por dia\nconst appointments = $input.first().json;\nconst { monday } = $('Calcular semana').first().json;\n\nconst DAYS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];\n\n// Gera os 5 dias da semana\nconst days = [];\nfor (let i = 0; i < 5; i++) {\n  const d = new Date(monday + 'T12:00:00');\n  d.setDate(d.getDate() + i);\n  days.push(d);\n}\n\nlet msg = '📋 *Sua semana, Michele!*\\n\\n';\nlet total = 0;\nlet revenue = 0;\n\nfor (const day of days) {\n  const iso = day.toISOString().split('T')[0];\n  const dd  = String(day.getDate()).padStart(2,'0');\n  const mm  = String(day.getMonth() + 1).padStart(2,'0');\n  const label = `${DAYS[day.getDay()]}, ${dd}/${mm}`;\n  const appts = (Array.isArray(appointments) ? appointments : []).filter(a => a.date === iso);\n\n  msg += `*${label}*\\n`;\n  if (appts.length === 0) {\n    msg += '_Nenhum agendamento_\\n';\n  } else {\n    for (const a of appts) {\n      msg += `🕐 ${a.start_time.slice(0,5)} ${a.client_name} — ${a.service_name}\\n`;\n      total++;\n      revenue += Number(a.service_price ?? 0);\n    }\n  }\n  msg += '\\n';\n}\n\nconst revenueStr = revenue.toFixed(2).replace('.',',');\nmsg += `📊 *Total: ${total} atendimento${total !== 1 ? 's' : ''} · R$ ${revenueStr}*`;\n\nreturn [{ json: { message: msg } }];"
+        "jsCode": "// Monta resumo semanal agrupado por dia\nconst appointments = $input.first().json;\nconst { monday } = $('Calcular semana').first().json;\n\nconst DAYS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];\n\n// Gera os 5 dias da semana\nconst days = [];\nfor (let i = 0; i < 5; i++) {\n  const d = new Date(monday + 'T12:00:00');\n  d.setDate(d.getDate() + i);\n  days.push(d);\n}\n\nlet msg = '📋 *Sua semana chegou!*\\n\\n';\nlet total = 0;\nlet revenue = 0;\n\nfor (const day of days) {\n  const iso = day.toISOString().split('T')[0];\n  const dd  = String(day.getDate()).padStart(2,'0');\n  const mm  = String(day.getMonth() + 1).padStart(2,'0');\n  const label = `${DAYS[day.getDay()]}, ${dd}/${mm}`;\n  const appts = (Array.isArray(appointments) ? appointments : []).filter(a => a.date === iso);\n\n  msg += `*${label}*\\n`;\n  if (appts.length === 0) {\n    msg += '_Nenhum agendamento_\\n';\n  } else {\n    for (const a of appts) {\n      msg += `🕐 ${a.start_time.slice(0,5)} ${a.client_name} — ${a.service_name}\\n`;\n      total++;\n      revenue += Number(a.service_price ?? 0);\n    }\n  }\n  msg += '\\n';\n}\n\nconst revenueStr = revenue.toFixed(2).replace('.',',');\nmsg += `📊 *Total: ${total} atendimento${total !== 1 ? 's' : ''} · R$ ${revenueStr}*`;\n\nreturn [{ json: { message: msg } }];"
       },
       "id": "rs4",
       "name": "Montar resumo",
@@ -69,7 +69,7 @@
         "options": {}
       },
       "id": "rs5",
-      "name": "Enviar resumo para Michele",
+      "name": "Enviar resumo para a dona do estúdio",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [1120, 300]
@@ -86,7 +86,7 @@
       "main": [[{ "node": "Montar resumo", "type": "main", "index": 0 }]]
     },
     "Montar resumo": {
-      "main": [[{ "node": "Enviar resumo para Michele", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "Enviar resumo para a dona do estúdio", "type": "main", "index": 0 }]]
     }
   },
   "active": false,
@@ -94,6 +94,6 @@
   "versionId": "1",
   "id": "resumo-semanal-admin",
   "meta": {
-    "instanceId": "studio-michele"
+    "instanceId": "venhagenda"
   }
 }

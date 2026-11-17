@@ -13,7 +13,7 @@
 2. **Painel admin** (`/:slug/admin`) — cada estúdio vê sua própria agenda
 3. **Bot do WhatsApp + notificações automáticas** — via n8n + UazAPI
 
-O primeiro cliente/piloto do sistema é a **Michele** (manicure), mas a arquitetura já é multi-tenant: qualquer estúdio novo se cadastra em `/setup` e ganha seu próprio slug, serviços e configuração.
+O primeiro cliente/piloto do sistema é uma **manicure**, mas a arquitetura já é multi-tenant: qualquer estúdio novo se cadastra em `/setup` e ganha seu próprio slug, serviços e configuração.
 
 ---
 
@@ -214,7 +214,7 @@ TIMEZONE=America/Sao_Paulo
 Este arquivo já foi uma vez um plano pré-código pra um projeto single-tenant com Supabase + Evolution API. O que mudou, na prática:
 - Supabase (Postgres gerenciado + API REST automática) → **Postgres self-hosted + Express próprio**, porque deu mais controle sobre RLS multi-tenant e lógica de negócio.
 - Evolution API → **UazAPI** pra WhatsApp.
-- Projeto single-tenant (só a Michele) → **multi-tenant** com onboarding self-service em `/setup`.
+- Projeto single-tenant (só a primeira cliente) → **multi-tenant** com onboarding self-service em `/setup`.
 - Lembretes/resumos → não dependem só do n8n, viraram cron jobs nativos no backend (mais confiável, menos peça-de-infra pra manter no ar).
 
 Se você (Claude) encontrar código ou comentários que ainda referenciam Supabase RPC, Evolution API, ou "um único estúdio", trate como desatualizado e prefira o que está de fato implementado em `server/src/` e `server/schema.sql`.
