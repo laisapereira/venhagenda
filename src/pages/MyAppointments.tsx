@@ -2,6 +2,7 @@ import { useState, FormEvent } from "react";
 import { useParams } from "react-router-dom";
 import { api, ClientAppointment } from "../lib/api";
 import { Icon } from "../components/Icon";
+import { TopBar, PageTitle, ErrorBox, fieldStyle, labelStyle, primaryButtonStyle } from "../components/Brand";
 import { T } from "../theme/terra";
 
 const brl = (n: number) => `R$ ${Number(n).toFixed(2).replace(".", ",")}`;
@@ -79,53 +80,40 @@ export default function MyAppointments() {
   const past      = filtered.filter(a => a.date < today  && a.status !== 'cancelled');
   const cancelled = filtered.filter(a => a.status === 'cancelled');
 
-  const fld = {
-    width: "100%", boxSizing: "border-box" as const,
-    padding: "13px 14px", border: `1.5px solid ${T.line}`,
-    borderRadius: T.radiusSm, fontSize: 15, color: T.ink,
-    background: T.surface, fontFamily: T.body, outline: "none",
-  };
-
   return (
     <div style={{ minHeight: "100vh", background: T.bg, fontFamily: T.body, display: "flex", flexDirection: "column" }}>
-      {/* Header */}
-      <div style={{ background: T.primary, color: T.primaryInk, padding: "48px 24px 28px", textAlign: "center" }}>
-        <div style={{ width: 56, height: 56, borderRadius: 999, background: "rgba(255,255,255,0.16)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px" }}>
-          <Icon name="calendar" size={28} color={T.primaryInk} sw={1.5} />
-        </div>
-        <div style={{ fontFamily: T.heading, fontWeight: T.headingWeight, fontSize: 28 }}>
-          {clientName ? `Olá, ${clientName.split(" ")[0]}!` : "Meus agendamentos"}
-        </div>
-        <p style={{ fontSize: 13, opacity: 0.8, marginTop: 6 }}>
-          {clientName ? "Aqui estão seus agendamentos." : "Digite seu telefone para ver seus agendamentos."}
-        </p>
-      </div>
+      <TopBar />
 
-      <div style={{ flex: 1, maxWidth: 520, width: "100%", margin: "0 auto", padding: "24px 16px", boxSizing: "border-box" }}>
+      <div style={{ flex: 1, maxWidth: 640, width: "100%", margin: "0 auto", padding: "clamp(28px,5vw,56px) clamp(16px,5vw,32px) 48px" }}>
+        <div style={{ marginBottom: 28 }}>
+          <PageTitle
+            eyebrow="Área da cliente"
+            title={clientName ? `Olá, ${clientName.split(" ")[0]}!` : "Meus agendamentos"}
+            sub={clientName ? "Aqui estão seus horários. Você pode remarcar ou cancelar por aqui." : "Digite o telefone que você usou pra agendar. Sem senha, sem cadastro."}
+          />
+        </div>
 
         {/* Formulário de busca */}
         {!clientName && (
           <>
-            {error && (
-              <div style={{ background: "#fee2e2", color: "#991b1b", border: "1px solid #fca5a5", borderRadius: T.radiusSm, padding: "11px 14px", fontSize: 14, marginBottom: 16 }}>
-                {error}
+            {error && <ErrorBox>{error}</ErrorBox>}
+            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16, background: T.surface, border: `1px solid ${T.lineSoft}`, borderRadius: 20, padding: "clamp(20px,4vw,32px)" }}>
+              <div>
+                <label htmlFor="my-phone" style={labelStyle}>Seu WhatsApp</label>
+                <input
+                  id="my-phone"
+                  type="tel"
+                  autoComplete="tel"
+                  placeholder="(71) 99999-0001"
+                  value={phone}
+                  onChange={e => setPhone(applyPhoneMask(e.target.value.replace(/\D/g, "")))}
+                  required
+                  style={fieldStyle}
+                />
               </div>
-            )}
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <input
-                type="tel"
-                placeholder="Seu WhatsApp (ex: 71 99999-0001)"
-                value={phone}
-                onChange={e => setPhone(applyPhoneMask(e.target.value.replace(/\D/g, "")))}
-                required
-                style={fld}
-              />
-              <button
-                type="submit"
-                disabled={loading}
-                style={{ background: T.primary, color: T.primaryInk, border: "none", borderRadius: T.radius, padding: "15px", fontSize: 15, fontWeight: 700, cursor: loading ? "default" : "pointer", opacity: loading ? 0.7 : 1, fontFamily: T.body }}
-              >
-                {loading ? "Buscando…" : "Ver meus agendamentos →"}
+              <button type="submit" disabled={loading} style={primaryButtonStyle(loading)}>
+                {loading ? "Buscando…" : "Ver meus agendamentos"}
+                {!loading && <Icon name="arrowRight" size={19} color="currentColor" sw={2.2} />}
               </button>
             </form>
           </>

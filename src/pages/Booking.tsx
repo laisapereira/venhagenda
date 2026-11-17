@@ -2,7 +2,11 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { api, Service, StudioConfig } from "../lib/api";
 import { Icon } from "../components/Icon";
+import { Logo } from "../components/Brand";
 import { T, serviceTint, serviceIcon } from "../theme/terra";
+
+// Fluxo da cliente: coluna central confortável no celular e no desktop.
+const BOOK_MAX = 640;
 
 type Step =
   | "home"
@@ -327,8 +331,10 @@ export default function Booking() {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 11,
-            padding: "16px 20px 12px",
+            gap: 12,
+            padding: "14px clamp(16px,4vw,24px) 12px",
+            maxWidth: BOOK_MAX,
+            margin: "0 auto",
           }}
         >
           {step !== "home" && step !== "service" && step !== "success" && (
@@ -350,43 +356,39 @@ export default function Booking() {
               <Icon name="chevronLeft" size={18} color={T.ink} />
             </button>
           )}
-          <div style={{ flex: 1 }}>
-            <img
-              src="/logo-white.png"
-              alt="venhagenda"
-              style={{ height: "5rem", display: "block" }}
-            />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div
+              style={{
+                fontSize: 12,
+                fontWeight: 800,
+                letterSpacing: 1,
+                textTransform: "uppercase",
+                color: T.primaryText,
+              }}
+            >
+              Agendamento online
+            </div>
             <div
               style={{
                 fontFamily: T.heading,
-                fontWeight: T.headingWeight,
-                fontSize: "1.4rem",
-                lineHeight: 1,
+                fontWeight: 700,
+                fontSize: "clamp(24px,4vw,30px)",
+                lineHeight: 1.05,
                 color: T.ink,
-                marginTop: 6,
-                textAlign: "center",
+                marginTop: 2,
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
               }}
             >
               {config.studio_name || ""}
             </div>
           </div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 5,
-              fontSize: 11,
-              color: T.inkSoft,
-              fontWeight: 600,
-            }}
-          >
-            <Icon name="shield" size={15} color={T.accent} /> cuidando de você
-            ❤️
-          </div>
+          <Logo size={16} to={null} />
         </div>
 
         {step !== "home" && step !== "success" && (
-          <div style={{ display: "flex", gap: 5, padding: "0 20px 14px" }}>
+          <div style={{ display: "flex", gap: 5, padding: "0 clamp(16px,4vw,24px) 14px", maxWidth: BOOK_MAX, margin: "0 auto" }}>
             {STEPS.map((_, i) => (
               <div
                 key={i}
@@ -408,7 +410,7 @@ export default function Booking() {
         style={{
           flex: 1,
           padding: "20px 20px 110px",
-          maxWidth: 520,
+          maxWidth: BOOK_MAX,
           width: "100%",
           margin: "0 auto",
           boxSizing: "border-box",
@@ -1166,12 +1168,11 @@ export default function Booking() {
         )}
         {/* Footer */}
         <div style={{ marginTop: 40, paddingBottom: 8, textAlign: "center" }}>
-          <img
-            src="/logo-beige.png"
-            alt="venhagenda"
-            style={{ height: "4.5rem", marginBottom: 8 }}
-          />
-          <div style={{ fontSize: 11, color: T.inkSoft }}>
+          <div style={{ fontSize: 12.5, color: T.inkSoft, marginBottom: 8 }}>agendamento feito com</div>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
+            <Logo size={18} />
+          </div>
+          <div style={{ fontSize: 12.5, color: T.inkSoft }}>
             soluções por{" "}
             <a
               href="https://instagram.com/aboutlaisa"
@@ -1206,7 +1207,7 @@ export default function Booking() {
           <div
             style={{
               background: T.surface,
-              borderRadius: `${T.radius} ${T.radius} 0 0`,
+              borderRadius: `${T.radius}px ${T.radius}px 0 0`,
               padding: "28px 20px 40px",
               maxWidth: 520,
               width: "100%",
@@ -1317,7 +1318,7 @@ export default function Booking() {
             background: `linear-gradient(to top, ${T.bg} 60%, transparent)`,
           }}
         >
-          <div style={{ maxWidth: 520, margin: "0 auto" }}>
+          <div style={{ maxWidth: BOOK_MAX, margin: "0 auto" }}>
             {step === "info" &&
               (() => {
                 const ok =

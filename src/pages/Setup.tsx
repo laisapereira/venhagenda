@@ -1,8 +1,9 @@
-import { useState, FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, FormEvent, CSSProperties, ReactNode } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../lib/api'
 import { Icon } from '../components/Icon'
 import { T } from '../theme/terra'
+import { AuthLayout, ErrorBox, PasswordField, fieldStyle, labelStyle, primaryButtonStyle } from '../components/Brand'
 
 export default function Setup() {
   const navigate = useNavigate()
@@ -31,7 +32,7 @@ export default function Setup() {
     setError(null)
     if (password.length < 6) { setError('Senha deve ter ao menos 6 caracteres.'); return }
     if (password !== confirm) { setError('As senhas não coincidem.'); return }
-    if (!/^[a-z0-9-]+$/.test(slug)) { setError('Slug deve conter apenas letras minúsculas, números e hífens.'); return }
+    if (!/^[a-z0-9-]+$/.test(slug)) { setError('O link deve ter só letras minúsculas, números e hífens.'); return }
 
     setLoading(true)
     try {
@@ -45,114 +46,91 @@ export default function Setup() {
     }
   }
 
-  const fld = {
-    width: '100%', boxSizing: 'border-box' as const, padding: '13px 14px',
-    border: `1.5px solid ${T.line}`, borderRadius: T.radiusSm, fontSize: 15,
-    color: T.ink, background: T.surface, fontFamily: T.body, outline: 'none',
-  }
-  const lbl = {
-    display: 'block', fontSize: 11.5, fontWeight: 700, color: T.inkSoft,
-    textTransform: 'uppercase' as const, letterSpacing: 0.5, marginBottom: 6,
-  }
+  const mismatch = !!confirm && confirm !== password
+  const incomplete = !studioName || !slug || !email || !password || password !== confirm
+  const host = typeof window !== 'undefined' ? window.location.host : 'venhagenda.com.br'
 
   return (
-    <div style={{ minHeight: '100vh', background: T.bg, fontFamily: T.body, display: 'flex', flexDirection: 'column' }}>
+    <AuthLayout
+      title="Crie seu estúdio"
+      sub="Leva 1 minuto. Depois você define horários, serviços e o seu WhatsApp no painel."
+      sideTitle={<>Sua agenda online, <span style={{ fontStyle: 'italic', color: '#F2C9A8' }}>pronta em 5 minutos.</span></>}
+      sidePoints={[
+        'Grátis pra começar, sem cartão de crédito',
+        'Um link só seu pra mandar pras clientes',
+        'Confirmação e lembrete no WhatsApp, sem configurar nada',
+        'A cliente agenda sem baixar app nem criar conta',
+      ]}
+      footer={<>Já tem conta? <Link to="/login">Entrar</Link></>}
+    >
+      {error && <ErrorBox>{error}</ErrorBox>}
 
-      <div style={{ position: 'relative', paddingTop: 64, paddingBottom: 30, textAlign: 'center', background: T.primary, color: T.primaryInk, overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', width: 220, height: 220, borderRadius: 999, border: '1px solid rgba(255,255,255,0.14)', top: -70, right: -60 }} />
-        <div style={{ position: 'absolute', width: 150, height: 150, borderRadius: 999, border: '1px solid rgba(255,255,255,0.12)', bottom: -50, left: -40 }} />
-        <div style={{ width: 60, height: 60, borderRadius: 999, background: 'rgba(255,255,255,0.16)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-          <Icon name="sparkle" size={30} color={T.primaryInk} sw={1.5} fill />
-        </div>
-        <div style={{ fontSize: 10, letterSpacing: 4, textTransform: 'uppercase', opacity: 0.8, fontWeight: 600 }}>Novo estúdio</div>
-        <div style={{ fontFamily: T.heading, fontWeight: T.headingWeight, fontSize: 32, lineHeight: 1.05, marginTop: 4 }}>Criar minha conta</div>
-        <div style={{ fontSize: 11, letterSpacing: 2, textTransform: 'uppercase', opacity: 0.85, marginTop: 6 }}>Agendamento online</div>
-      </div>
-
-      <div style={{ flex: 1, padding: '30px 24px', maxWidth: 440, width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
-        <p style={{ fontSize: 13, color: T.inkSoft, textAlign: 'center', marginTop: 0, marginBottom: 26, lineHeight: 1.6 }}>
-          Cada estúdio tem seu próprio link de agendamento.<br />
-          Você pode ter quantos quiser.
-        </p>
-
-        {error && (
-          <div style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', borderRadius: T.radiusSm, padding: '11px 14px', fontSize: 14, marginBottom: 20 }}>
-            {error}
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+        <Group step={1} title="Seu estúdio">
+          <div>
+            <label htmlFor="setup-name" style={labelStyle}>Nome do estúdio</label>
+            <input id="setup-name" style={fieldStyle} type="text" placeholder="Ex: Studio Bella" value={studioName}
+              onChange={e => handleStudioName(e.target.value)} required />
           </div>
-        )}
-
-        <form onSubmit={handleSubmit}>
-          <label style={lbl}>Nome do estúdio</label>
-          <input style={fld} type="text" placeholder="Ex: Studio Bella" value={studioName} onChange={e => handleStudioName(e.target.value)} required />
-
-          <div style={{ marginTop: 14 }}>
-            <label style={lbl}>Link de agendamento</label>
-            <div style={{ position: 'relative' }}>
-              <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 13, color: T.inkSoft, pointerEvents: 'none' }}>
-                /book/
-              </span>
-              <input
-                style={{ ...fld, paddingLeft: 58, fontFamily: 'monospace' }}
-                type="text"
-                placeholder="studio-bella"
-                value={slug}
-                onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-                required
-              />
+          <div>
+            <label htmlFor="setup-slug" style={labelStyle}>Seu link de agendamento</label>
+            <div style={{ display: 'flex', alignItems: 'stretch', border: `1.5px solid ${T.line}`, borderRadius: 12, background: T.surface, overflow: 'hidden' }}>
+              <span style={{ display: 'flex', alignItems: 'center', padding: '0 4px 0 16px', fontSize: 15, color: T.inkSoft, whiteSpace: 'nowrap', userSelect: 'none' }}>/book/</span>
+              <input id="setup-slug" style={{ ...fieldStyle, border: 'none', borderRadius: 0, paddingLeft: 2, minWidth: 0 }}
+                type="text" placeholder="studio-bella" value={slug} aria-describedby="setup-slug-hint"
+                onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))} required />
             </div>
-            <p style={{ fontSize: 11.5, color: T.inkSoft, marginTop: 6 }}>
-              Clientes acessam em: <strong style={{ color: T.ink }}>/book/{slug || 'seu-slug'}</strong>
+            <p id="setup-slug-hint" style={{ fontSize: 13.5, color: T.inkSoft, marginTop: 8, overflowWrap: 'anywhere' }}>
+              Suas clientes agendam em <strong style={{ color: T.ink }}>{host}/book/{slug || 'seu-link'}</strong>
             </p>
           </div>
+        </Group>
 
-          <div style={{ height: 20, borderTop: `1px solid ${T.lineSoft}`, margin: '20px 0 20px' }} />
-
-          <label style={lbl}>Seu e-mail</label>
-          <input style={fld} type="email" autoComplete="email" placeholder="voce@email.com" value={email} onChange={e => setEmail(e.target.value)} required />
-
-          <div style={{ height: 14 }} />
-          <label style={lbl}>Senha</label>
-          <div style={{ position: 'relative' }}>
-            <input style={{ ...fld, paddingRight: 56 }} type={showPass ? 'text' : 'password'} autoComplete="new-password" placeholder="Mínimo 6 caracteres" value={password} onChange={e => setPassword(e.target.value)} required />
-            <button type="button" onClick={() => setShowPass(s => !s)} style={{ position: 'absolute', right: 6, top: 6, bottom: 6, width: 44, border: 'none', background: 'transparent', color: T.inkSoft, cursor: 'pointer', fontSize: 11, fontWeight: 700, fontFamily: T.body }}>
-              {showPass ? 'ocultar' : 'ver'}
-            </button>
+        <Group step={2} title="Seu acesso ao painel">
+          <div>
+            <label htmlFor="setup-email" style={labelStyle}>E-mail</label>
+            <input id="setup-email" style={fieldStyle} type="email" autoComplete="email" placeholder="voce@email.com"
+              value={email} onChange={e => setEmail(e.target.value)} required />
           </div>
+          <div style={stack}>
+            <div>
+              <label htmlFor="setup-pass" style={labelStyle}>Senha</label>
+              <PasswordField id="setup-pass" value={password} onChange={setPassword} show={showPass}
+                onToggle={() => setShowPass(s => !s)} autoComplete="new-password" placeholder="Mínimo 6 caracteres" />
+            </div>
+            <div>
+              <label htmlFor="setup-confirm" style={labelStyle}>Confirme a senha</label>
+              <PasswordField id="setup-confirm" value={confirm} onChange={setConfirm} show={showPass}
+                autoComplete="new-password" placeholder="Repita a senha" invalid={mismatch} />
+              {mismatch && <p style={{ fontSize: 13.5, color: '#8F2A1F', marginTop: 6 }}>As senhas não coincidem.</p>}
+            </div>
+          </div>
+        </Group>
 
-          <div style={{ height: 14 }} />
-          <label style={lbl}>Confirme a senha</label>
-          <input
-            style={{ ...fld, borderColor: confirm && confirm !== password ? '#fca5a5' : T.line }}
-            type={showPass ? 'text' : 'password'}
-            autoComplete="new-password"
-            placeholder="Repita a senha"
-            value={confirm}
-            onChange={e => setConfirm(e.target.value)}
-            required
-          />
-
-          <button type="submit" disabled={loading || !studioName || !slug || !email || !password || password !== confirm} style={{
-            marginTop: 26, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9,
-            background: T.primary, color: T.primaryInk, border: 'none', borderRadius: T.radius,
-            padding: '16px', fontSize: 16, fontWeight: 700, fontFamily: T.body,
-            cursor: loading ? 'default' : 'pointer',
-            opacity: (loading || !studioName || !slug || !email || !password || password !== confirm) ? 0.5 : 1,
-            boxShadow: '0 10px 24px -10px rgba(0,0,0,0.4)',
-          }}>
+        <div>
+          <button type="submit" disabled={loading || incomplete} style={primaryButtonStyle(loading || incomplete)}>
             {loading ? 'Criando estúdio…' : 'Criar estúdio e entrar'}
-            {!loading && <Icon name="arrowRight" size={19} color={T.primaryInk} />}
+            {!loading && <Icon name="arrowRight" size={19} color="currentColor" sw={2.2} />}
           </button>
-        </form>
-
-        <button onClick={() => navigate('/login')} style={{ marginTop: 18, width: '100%', background: 'transparent', border: 'none', color: T.inkSoft, fontSize: 13.5, cursor: 'pointer', fontFamily: T.body }}>
-          Já tenho conta → Entrar
-        </button>
-
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, marginTop: 24, color: T.inkSoft }}>
-          <Icon name="shield" size={15} color={T.accent} />
-          <span style={{ fontSize: 11.5 }}>Senha armazenada com criptografia</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, marginTop: 14, color: T.inkSoft, fontSize: 13.5 }}>
+            <Icon name="shield" size={15} color={T.sage} /> Grátis, sem cartão. Senha guardada com criptografia.
+          </div>
         </div>
-      </div>
-    </div>
+      </form>
+    </AuthLayout>
+  )
+}
+
+const stack: CSSProperties = { display: 'flex', flexDirection: 'column', gap: 18 }
+
+function Group({ step, title, children }: { step: number; title: string; children: ReactNode }) {
+  return (
+    <fieldset style={{ border: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 18 }}>
+      <legend style={{ display: 'flex', alignItems: 'center', gap: 10, padding: 0, marginBottom: 16, fontSize: 13, fontWeight: 800, letterSpacing: 0.8, textTransform: 'uppercase', color: T.primaryText }}>
+        <span style={{ width: 26, height: 26, borderRadius: '50%', background: T.primary, color: T.primaryInk, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 13 }}>{step}</span>
+        {title}
+      </legend>
+      {children}
+    </fieldset>
   )
 }

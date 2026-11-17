@@ -2,7 +2,24 @@ import { useState, useEffect, useCallback, useRef, ReactNode, CSSProperties } fr
 import { useNavigate, useParams } from 'react-router-dom'
 import { api, Appointment, DashStats, TimeBlock, StudioConfig, ServiceRaw } from '../lib/api'
 import { Icon } from '../components/Icon'
+import { Container, Logo, SheetOverlay } from '../components/Brand'
 import { T, serviceTint, serviceIcon } from '../theme/terra'
+
+// ── layout ───────────────────────────────────────────────────────
+// Celular: uma coluna (como sempre foi). Desktop: resumo do dia à esquerda,
+// linha do tempo à direita, ocupando a largura disponível.
+const ADMIN_MAX = 1120
+const ADMIN_CSS = `
+.adm-wide{display:none}
+@media (min-width:640px){.adm-wide{display:inline}}
+@media (max-width:420px){.adm-studio{display:none}}
+@media (min-width:960px){
+  .adm-grid{display:grid;grid-template-columns:360px minmax(0,1fr);gap:28px;align-items:start;padding-top:20px !important}
+  .adm-side{position:sticky;top:20px}
+  .adm-side > div{padding-left:0 !important;padding-right:0 !important}
+  .adm-main{background:${T.surface};border:1px solid ${T.lineSoft};border-radius:20px;padding:8px 0;margin-top:16px}
+}
+`
 
 // ── constants ────────────────────────────────────────────────────
 const PX_PER_MIN = 80 / 60
@@ -115,7 +132,7 @@ export default function Admin() {
     }
   }
 
-  function logout() { localStorage.removeItem('token'); navigate(`/${slug}/login`) }
+  function logout() { localStorage.removeItem('token'); navigate('/login') }
 
   async function addBlock(start_date: string, end_date: string, start_time: string, end_time: string, reason: string) {
     try {
@@ -174,18 +191,28 @@ export default function Admin() {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: T.bg, color: T.ink, fontFamily: T.body, overflow: 'hidden' }}>
 
       {/* Header */}
+      <style>{ADMIN_CSS}</style>
       <div style={{ background: T.surface, borderBottom: `1px solid ${T.lineSoft}`, flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px 8px' }}>
-          <div>
-            <img src="/logo-white.png" alt="venhagenda" style={{ height: '4rem', display: 'block' }} />
-            <div style={{ fontFamily: T.heading, fontWeight: T.headingWeight, fontSize: '1.4rem', color: T.ink, marginTop: 6, lineHeight: 1, textAlign: 'center' }}>{config.studio_name || ''}</div>
+        <Container max={ADMIN_MAX} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, minHeight: 64 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 0 }}>
+            <Logo size={19} to={null} />
+            {config.studio_name && (
+              <span className="adm-studio" style={{ fontFamily: T.heading, fontWeight: 700, fontSize: 22, color: T.ink, paddingLeft: 14, borderLeft: `1px solid ${T.line}`, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {config.studio_name}
+              </span>
+            )}
           </div>
-          <button style={iconBtnS()} onClick={() => setSheet('menu')}>
-            <Icon name="list" size={20} color={T.inkSoft} />
-          </button>
-        </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+            <a className="adm-wide" href={`/book/${slug}`} target="_blank" rel="noreferrer" style={{ fontSize: 14, fontWeight: 700, color: T.primary, textDecoration: 'none' }}>
+              Ver minha página ↗
+            </a>
+            <button onClick={() => setSheet('menu')} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRadius: 999, border: `2px solid ${T.line}`, background: T.surface, cursor: 'pointer', fontSize: 14, fontWeight: 800, color: T.ink, fontFamily: T.body }}>
+              <Icon name="list" size={18} color={T.ink} /> Menu
+            </button>
+          </div>
+        </Container>
 
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', padding: '0 20px 14px' }}>
+        <Container max={ADMIN_MAX} style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12, paddingTop: 6, paddingBottom: 14 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <button onClick={view==='dia' ? prevDay : () => setRef(d => { const n=new Date(d); n.setDate(n.getDate()-7); return n })} style={navBtnS()}>
               <Icon name="chevronLeft" size={15} color={T.inkSoft} />
@@ -215,11 +242,13 @@ export default function Admin() {
               }}>{v}</button>
             ))}
           </div>
-        </div>
+        </Container>
       </div>
 
       {/* Body */}
       <div style={{ flex: 1, overflow: 'auto', WebkitOverflowScrolling: 'touch' as unknown as undefined }}>
+      <div className="adm-grid" style={{ maxWidth: ADMIN_MAX, margin: '0 auto', padding: '0 clamp(0px,3vw,40px)' }}>
+      <div className="adm-side">
 
         {/* Hero card */}
         {view==='dia' && hero && (
@@ -281,10 +310,14 @@ export default function Admin() {
         })()}
 
         {loading && <div style={{ height: 3, background: `linear-gradient(90deg,${T.primary},${T.accent})`, margin: '4px 16px', borderRadius: 2 }} />}
+      </div>
 
+      <div className="adm-main">
         {view==='dia'
           ? <DayTimeline appts={selDayAppts} blocks={blocks} today={today} selectedDate={selectedDate} nowMin={nowMin} workStart={workStart} workEnd={workEnd} onTap={a => { setSelAppt(a); setSheet('detail') }} onRemoveBlock={removeBlock} />
           : <WeekView weekDates={displayDates} today={today} selectedDate={selectedDate} countByDate={weekCount} maxCount={maxCount} workStart={config.work_start} workEnd={config.work_end} onPickDay={iso => { setSelDate(iso); setView('dia') }} />}
+      </div>
+      </div>
 
         <div style={{ height: 96 }} />
       </div>
@@ -431,13 +464,7 @@ function WeekView({ weekDates, today, selectedDate, countByDate, maxCount, workS
 
 // ── Overlay ──────────────────────────────────────────────────────
 function Overlay({ children, onClose }: { children: ReactNode; onClose: () => void }) {
-  return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(30,18,14,0.4)', zIndex: 50, display: 'flex', alignItems: 'flex-end' }}>
-      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 560, margin: '0 auto' }}>
-        {children}
-      </div>
-    </div>
-  )
+  return <SheetOverlay onClose={onClose}>{children}</SheetOverlay>
 }
 
 function SheetShell({ children }: { children: ReactNode }) {
@@ -942,5 +969,4 @@ function ChangePasswordSheet({ onDone }: { onDone: ()=>void }) {
 }
 
 // ── style helpers ────────────────────────────────────────────────
-function iconBtnS(): CSSProperties { return { width: 40, height: 40, borderRadius: 999, border: `1px solid ${T.lineSoft}`, background: T.surface, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } }
 function navBtnS(): CSSProperties  { return { width: 30, height: 30, borderRadius: 999, border: `1px solid ${T.lineSoft}`, background: T.surface, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } }

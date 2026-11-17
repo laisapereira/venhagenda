@@ -3,13 +3,19 @@ export const T = {
   surface:     '#FFFFFF',
   surfaceAlt:  '#F4EAE1',
   ink:         '#3A241A',
-  inkSoft:     '#8C7060',
+  inkSoft:     '#6F5546',   // escurecido p/ contraste AA em texto pequeno
   line:        '#EADCD0',
   lineSoft:    '#F2E8DF',
   primary:     '#A8502F',
+  primaryHover:'#923F22',
+  primaryText: '#8A3F22',   // terracota p/ texto sobre primarySoft
   primaryInk:  '#FFF8F3',
   primarySoft: '#F2E2D8',
   accent:      '#C08A3E',
+  green:       '#1F4A45',   // verde-petróleo do logo
+  sage:        '#5E8B78',
+  sageSoft:    '#E3EEE8',
+  maxWidth:    1120,
   radius:      16,
   radiusSm:    11,
   heading:     "'Cormorant Garamond', Georgia, serif",

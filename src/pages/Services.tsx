@@ -2,6 +2,7 @@ import { useState, useEffect, FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { api, ServiceRaw } from '../lib/api'
 import { Icon } from '../components/Icon'
+import { TopBar, PageTitle, SheetOverlay } from '../components/Brand'
 import { T, serviceTint, serviceIcon } from '../theme/terra'
 
 type Service = ServiceRaw
@@ -92,29 +93,25 @@ export default function Services() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: T.bg, color: T.ink, fontFamily: T.body }}>
 
-      {/* Header */}
-      <div style={{ background: T.surface, borderBottom: `1px solid ${T.lineSoft}`, flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '14px 20px' }}>
-          <button onClick={() => navigate(`/${slug}/admin`)} style={{ width: 36, height: 36, borderRadius: 999, border: `1px solid ${T.lineSoft}`, background: T.surface, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
-            <Icon name="chevronLeft" size={18} color={T.ink} />
+      <TopBar
+        max={960}
+        right={
+          <button onClick={() => navigate(`/${slug}/admin`)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 16px', borderRadius: 999, border: `2px solid ${T.line}`, background: T.surface, cursor: 'pointer', fontSize: 14, fontWeight: 800, color: T.ink, fontFamily: T.body }}>
+            <Icon name="chevronLeft" size={16} color={T.ink} sw={2.2} /> Agenda
           </button>
-          <div>
-            <div style={{ fontSize: 10.5, color: T.inkSoft, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1 }}>Painel</div>
-            <div style={{ fontFamily: T.heading, fontWeight: T.headingWeight, fontSize: 24, lineHeight: 1, color: T.ink }}>Serviços</div>
-          </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* List */}
-      <div style={{ flex: 1, padding: '18px 18px 110px' }}>
-        <p style={{ fontSize: 12.5, color: T.inkSoft, marginBottom: 16 }}>
-          Toque para editar preço e duração. Serviços pausados somem do agendamento online.
-        </p>
+      <div style={{ flex: 1, width: '100%', maxWidth: 960, margin: '0 auto', padding: 'clamp(28px,5vw,48px) clamp(16px,5vw,56px) 110px' }}>
+        <div style={{ marginBottom: 24 }}>
+          <PageTitle eyebrow="Painel" title="Serviços" sub="Toque num serviço pra editar preço e duração. Serviços pausados somem do agendamento online." />
+        </div>
 
         {loading ? (
           <p style={{ color: T.inkSoft, fontSize: 14 }}>Carregando…</p>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(100%,380px),1fr))', gap: 12 }}>
             {services.map(svc => {
               const c = serviceTint(svc.id)
               return (
@@ -238,11 +235,5 @@ function Toggle({ on, onClick }: { on: boolean; onClick: () => void }) {
 }
 
 function Overlay({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
-  return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(30,18,14,0.4)', zIndex: 50, display: 'flex', alignItems: 'flex-end' }}>
-      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 520, margin: '0 auto' }}>
-        {children}
-      </div>
-    </div>
-  )
+  return <SheetOverlay onClose={onClose} max={520}>{children}</SheetOverlay>
 }
