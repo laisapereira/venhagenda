@@ -3,7 +3,15 @@
 **Agendamento automático pelo WhatsApp para profissionais de beleza.**
 Nasceu de uma cliente real: uma manicure que perdia horas por semana respondendo mensagem para marcar horário. Com o Venhagenda, ela **economizou 8 horas por semana**.
 
-🔗 **No ar:** [venhagenda.com.br](https://venhagenda.com.br) · **Teste como cliente:** [agende num estúdio de demonstração](https://venhagenda.com.br/book/demo)
+🔗 **No ar:** [venhagenda.com.br](https://venhagenda.com.br)
+
+## Teste em 5 minutos, como dona de um estúdio
+
+1. Crie seu estúdio grátis em [venhagenda.com.br/setup](https://venhagenda.com.br/setup): nome, link e senha.
+2. Em **Configurações**, defina dias e horário de funcionamento e coloque **o seu WhatsApp** para notificações.
+3. Cadastre seus serviços, com preço e duração.
+4. Abra o seu link (venhagenda.com.br/book/seu-link) e agende como cliente, usando o seu número.
+5. O WhatsApp chega para os dois lados: a confirmação para a cliente e o aviso de novo agendamento para você. Tudo por um número central, sem configurar nada de WhatsApp.
 
 ## O problema
 
@@ -36,5 +44,3 @@ npm run dev
 ```
 
 Os fluxos do bot estão em [`/n8n`](./n8n) e podem ser importados no n8n.
-
-Como o bot do WhatsApp depende de um número conectado, a demonstração pública cobre a página de agendamento online.
